@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/responsive.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/mock/mock_listing_products.dart';
 import '../../core/mock/mock_reviews.dart';
+import '../../models/cart_item.dart';
 import '../../models/product.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/cart_provider.dart';
+import '../../providers/wishlist_provider.dart';
 import 'widgets/spec_table.dart';
 import 'widgets/color_swatch_selector.dart';
 import 'widgets/review_card.dart';
@@ -22,7 +28,6 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   int _selectedImageIndex = 0;
   int _selectedColorIndex = 0;
-  bool _isWishlisted = false;
 
   // Placeholder gallery — the Stitch design shows keyboard/ports/lifestyle
   // detail shots in addition to the hero image.
@@ -74,15 +79,20 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                 ],
               ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.marginMobile,
-                  AppSpacing.stackMd,
-                  AppSpacing.marginMobile,
-                  120, // room for the floating action bar
-                ),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
+              SliverLayoutBuilder(
+                builder: (context, sc) {
+                  final w = sc.crossAxisExtent;
+                  final hPad = responsiveHPadding(w);
+                  return SliverPadding(
+                    padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 120),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1280),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                     // Breadcrumbs
                     Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
@@ -204,8 +214,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ],
                       ),
                     ),
-                  ]),
-                ),
+                              ], // Column children
+                            ),   // Column
+                          ),     // ConstrainedBox
+                        ),       // Center
+                      ]),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -218,48 +234,106 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 24, offset: const Offset(0, 8)),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${product.name} added to cart')),
-                            );
-                          },
-                          icon: const Icon(Icons.shopping_cart_outlined, size: 20),
-                          label: const Text('Add to Cart'),
-                          style: ElevatedButton.styleFrom(minimumSize: const Size(0, 56)),
-                        ),
+                child: Consumer2<WishlistProvider, CartProvider>(
+                  builder: (context, wishlist, cart, _) {
+                    final isWishlisted = wishlist.isWishlisted(product.id);
+                    return Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 24,
+                              offset: const Offset(0, 8)),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () => setState(() => _isWishlisted = !_isWishlisted),
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.3)),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final uid = context
+                                    .read<AuthProvider>()
+                                    .currentUser
+                                    ?.uid;
+                                if (uid == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Please sign in to add items to your cart.')),
+                                  );
+                                  return;
+                                }
+                                final spec = product.specs['ram'] ??
+                                    product.specs['RAM'] ??
+                                    '';
+                                await cart.addItem(
+                                  uid,
+                                  CartItem(
+                                    productId: product.id,
+                                    name: product.name,
+                                    subtitle: spec.isNotEmpty
+                                        ? '$spec RAM'
+                                        : product.brand,
+                                    imageUrl: product.images.isNotEmpty
+                                        ? product.images.first
+                                        : (_galleryImages.isNotEmpty
+                                            ? _galleryImages.first
+                                            : ''),
+                                    priceAtAdd: product.price,
+                                    quantity: 1,
+                                  ),
+                                );
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          '${product.name} added to cart')),
+                                );
+                              },
+                              icon: const Icon(Icons.shopping_cart_outlined,
+                                  size: 20),
+                              label: const Text('Add to Cart'),
+                              style: ElevatedButton.styleFrom(
+                                  minimumSize: const Size(0, 56)),
+                            ),
                           ),
-                          child: Icon(
-                            _isWishlisted ? Icons.favorite : Icons.favorite_border,
-                            color: _isWishlisted ? AppColors.error : AppColors.secondary,
+                          const SizedBox(width: 12),
+                          GestureDetector(
+                            onTap: () async {
+                              final uid = context
+                                  .read<AuthProvider>()
+                                  .currentUser
+                                  ?.uid;
+                              if (uid == null) return;
+                              await wishlist.toggle(uid, product.id);
+                            },
+                            child: Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                    color: AppColors.outlineVariant
+                                        .withValues(alpha: 0.3)),
+                              ),
+                              child: Icon(
+                                isWishlisted
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: isWishlisted
+                                    ? AppColors.error
+                                    : AppColors.secondary,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ),

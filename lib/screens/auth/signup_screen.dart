@@ -1,9 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/utils/validators.dart';
+import '../../providers/auth_provider.dart';
 import '../root_shell.dart';
 import 'login_screen.dart';
 import 'widgets/auth_text_field.dart';
@@ -45,14 +47,27 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     setState(() => _isLoading = true);
-    // TODO: replace with AuthProvider().signUp(...) once backend is wired.
-    await Future.delayed(const Duration(milliseconds: 1200));
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signUp(
+      _nameController.text.trim(),
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const RootShell()),
-    );
+    if (success) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const RootShell()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.errorMessage ?? 'Sign up failed. Please try again.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   @override

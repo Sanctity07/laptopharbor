@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../providers/auth_provider.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../root_shell.dart';
 
 /// Splash reveal: logo scale/glow-in, name + tagline fade-in, then
 /// auto-advances to the onboarding carousel. Mirrors the Stitch
@@ -45,12 +48,16 @@ class _SplashScreenState extends State<SplashScreen>
 
     Future.delayed(const Duration(milliseconds: 2500), () {
       if (!mounted) return;
+      final authProvider = context.read<AuthProvider>();
+      final destination = authProvider.status == AuthStatus.authenticated
+          ? const RootShell()
+          : const OnboardingScreen();
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 700),
           pageBuilder: (_, animation, secondaryAnimation) => FadeTransition(
             opacity: animation,
-            child: const OnboardingScreen(),
+            child: destination,
           ),
         ),
       );

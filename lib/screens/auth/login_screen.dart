@@ -1,8 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/utils/validators.dart';
+import '../../providers/auth_provider.dart';
 import '../root_shell.dart';
 import 'signup_screen.dart';
 import 'widgets/auth_text_field.dart';
@@ -37,16 +39,27 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    // TODO: replace with AuthProvider().login(...) once backend is wired.
-    await Future.delayed(const Duration(milliseconds: 1200));
+    final auth = context.read<AuthProvider>();
+    final success = await auth.login(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const RootShell()),
-    );
+    if (success) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const RootShell()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.errorMessage ?? 'Login failed. Please try again.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,9 +99,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       submitLabel: 'Sign In',
                       submitIcon: Icons.arrow_forward,
                       forgotPasswordLink: TextButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          final email = _emailController.text.trim();
+                          if (email.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Enter your email first to reset your password.')),
+                            );
+                            return;
+                          }
+                          final auth = context.read<AuthProvider>();
+                          final sent = await auth.resetPassword(email);
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Password reset coming soon')),
+                            SnackBar(
+                              content: Text(
+                                sent
+                                    ? 'Password reset email sent to $email'
+                                    : auth.errorMessage ?? 'Failed to send reset email.',
+                              ),
+                              backgroundColor: sent ? AppColors.success : AppColors.error,
+                            ),
                           );
                         },
                         child: const Text('Forgot Password?'),

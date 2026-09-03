@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/theme/app_spacing.dart';
+import '../../core/theme/responsive.dart';
 import '../product/product_listing_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -14,7 +14,6 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
-  // Shown below the search field before the user types anything.
   final List<String> _recentSearches = [
     'MacBook Pro M3',
     'Gaming laptop RTX 4080',
@@ -22,7 +21,6 @@ class _SearchScreenState extends State<SearchScreen> {
     'Thunderbolt dock',
   ];
 
-  // Trending / suggested topics always visible.
   final List<_Suggestion> _trending = [
     _Suggestion(icon: Icons.laptop_mac_outlined, label: 'Laptops'),
     _Suggestion(icon: Icons.sports_esports_outlined, label: 'Gaming'),
@@ -44,24 +42,22 @@ class _SearchScreenState extends State<SearchScreen> {
   void _submit([String? override]) {
     final q = (override ?? _controller.text).trim();
     if (q.isEmpty) return;
-
-    // Add to recent searches (dedup, cap at 6).
     setState(() {
       _recentSearches.remove(q);
       _recentSearches.insert(0, q);
       if (_recentSearches.length > 6) _recentSearches.removeLast();
     });
-
     _focusNode.unfocus();
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ProductListingScreen(initialQuery: q),
-      ),
+      MaterialPageRoute(builder: (_) => ProductListingScreen(initialQuery: q)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final hPad = responsiveHPadding(screenWidth);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -71,126 +67,133 @@ class _SearchScreenState extends State<SearchScreen> {
             // ── Top bar ────────────────────────────────────────────────────
             Container(
               color: AppColors.secondary,
-              padding: const EdgeInsets.fromLTRB(8, 8, 16, 12),
-              child: Row(
-                children: [
-                  // Back / close (only when pushed; stub otherwise)
-                  if (Navigator.of(context).canPop())
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: AppColors.primaryFixedDim),
-                      onPressed: () => Navigator.of(context).pop(),
-                    )
-                  else
-                    const SizedBox(width: 16),
-                  // Search field
-                  Expanded(
-                    child: Container(
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceContainerLowest,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TextField(
-                        controller: _controller,
-                        focusNode: _focusNode,
-                        autofocus: true,
-                        textInputAction: TextInputAction.search,
-                        onChanged: (v) => setState(() => _query = v),
-                        onSubmitted: _submit,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        decoration: InputDecoration(
-                          hintText: 'Search laptops, specs, brands…',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: AppColors.outline),
-                          prefixIcon: const Icon(Icons.search,
-                              color: AppColors.outline, size: 20),
-                          suffixIcon: _query.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.close,
-                                      color: AppColors.outline, size: 18),
-                                  onPressed: () {
-                                    _controller.clear();
-                                    setState(() => _query = '');
-                                  },
-                                )
-                              : null,
-                          filled: false,
-                          border: InputBorder.none,
-                          contentPadding:
-                              const EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.fromLTRB(8, 8, hPad, 12),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 960),
+                  child: Row(
+                    children: [
+                      if (Navigator.of(context).canPop())
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back,
+                              color: AppColors.primaryFixedDim),
+                          onPressed: () => Navigator.of(context).pop(),
+                        )
+                      else
+                        const SizedBox(width: 16),
+                      Expanded(
+                        child: Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceContainerLowest,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextField(
+                            controller: _controller,
+                            focusNode: _focusNode,
+                            autofocus: true,
+                            textInputAction: TextInputAction.search,
+                            onChanged: (v) => setState(() => _query = v),
+                            onSubmitted: _submit,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            decoration: InputDecoration(
+                              hintText: 'Search laptops, specs, brands…',
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(color: AppColors.outline),
+                              prefixIcon: const Icon(Icons.search,
+                                  color: AppColors.outline, size: 20),
+                              suffixIcon: _query.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.close,
+                                          color: AppColors.outline, size: 18),
+                                      onPressed: () {
+                                        _controller.clear();
+                                        setState(() => _query = '');
+                                      },
+                                    )
+                                  : null,
+                              filled: false,
+                              border: InputBorder.none,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () => _submit(),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.primaryFixedDim,
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                        ),
+                        child: const Text('Search',
+                            style: TextStyle(fontWeight: FontWeight.w600)),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () => _submit(),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.primaryFixedDim,
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                    ),
-                    child: const Text('Search',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                  ),
-                ],
+                ),
               ),
             ),
 
             // ── Body ───────────────────────────────────────────────────────
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.marginMobile),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Recent searches (only shown when field is empty)
-                    if (_query.isEmpty && _recentSearches.isNotEmpty) ...[
-                      _SectionHeader(
-                        title: 'Recent',
-                        action: TextButton(
-                          onPressed: () =>
-                              setState(() => _recentSearches.clear()),
-                          child: const Text('Clear all'),
+                padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 32),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 960),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (_query.isEmpty && _recentSearches.isNotEmpty) ...[
+                          _SectionHeader(
+                            title: 'Recent',
+                            action: TextButton(
+                              onPressed: () =>
+                                  setState(() => _recentSearches.clear()),
+                              child: const Text('Clear all'),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ..._recentSearches.map((term) => _RecentTile(
+                                term: term,
+                                onTap: () {
+                                  _controller.text = term;
+                                  setState(() => _query = term);
+                                  _submit(term);
+                                },
+                                onRemove: () => setState(
+                                    () => _recentSearches.remove(term)),
+                              )),
+                          const SizedBox(height: 32),
+                        ],
+
+                        _SectionHeader(title: 'Browse by Category'),
+                        const SizedBox(height: 16),
+                        // Responsive category chips — Wrap naturally reflows
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _trending
+                              .map((s) => _TrendingChip(
+                                    suggestion: s,
+                                    onTap: () => _submit(s.label),
+                                  ))
+                              .toList(),
                         ),
-                      ),
-                      const SizedBox(height: AppSpacing.stackSm),
-                      ..._recentSearches.map((term) => _RecentTile(
-                            term: term,
-                            onTap: () {
-                              _controller.text = term;
-                              setState(() => _query = term);
-                              _submit(term);
-                            },
-                            onRemove: () =>
-                                setState(() => _recentSearches.remove(term)),
-                          )),
-                      const SizedBox(height: AppSpacing.stackLg),
-                    ],
 
-                    // Trending / categories
-                    _SectionHeader(title: 'Browse by Category'),
-                    const SizedBox(height: AppSpacing.stackMd),
-                    Wrap(
-                      spacing: AppSpacing.stackSm,
-                      runSpacing: AppSpacing.stackSm,
-                      children: _trending
-                          .map((s) => _TrendingChip(
-                                suggestion: s,
-                                onTap: () => _submit(s.label),
-                              ))
-                          .toList(),
+                        if (_query.isNotEmpty) ...[
+                          const SizedBox(height: 32),
+                          _SectionHeader(title: 'Suggestions'),
+                          const SizedBox(height: 8),
+                          ..._buildSuggestions(_query),
+                        ],
+                      ],
                     ),
-
-                    // Inline suggestions while typing
-                    if (_query.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.stackLg),
-                      _SectionHeader(title: 'Suggestions'),
-                      const SizedBox(height: AppSpacing.stackSm),
-                      ..._buildSuggestions(_query),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -200,22 +203,16 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  /// Simple client-side suggestions by matching query against trending labels
-  /// + recent searches. Replace with a real search-as-you-type API later.
   List<Widget> _buildSuggestions(String q) {
     final lower = q.toLowerCase();
     final matches = <String>{
-      ..._trending.map((s) => s.label).where((l) => l.toLowerCase().contains(lower)),
+      ..._trending
+          .map((s) => s.label)
+          .where((l) => l.toLowerCase().contains(lower)),
       ..._recentSearches.where((r) => r.toLowerCase().contains(lower)),
     };
     if (matches.isEmpty) {
-      return [
-        _RecentTile(
-          term: q,
-          icon: Icons.search,
-          onTap: () => _submit(q),
-        ),
-      ];
+      return [_RecentTile(term: q, icon: Icons.search, onTap: () => _submit(q))];
     }
     return matches
         .map((m) => _RecentTile(
@@ -271,13 +268,11 @@ class _RecentTile extends StatelessWidget {
             Icon(icon, size: 18, color: AppColors.onSurfaceVariant),
             const SizedBox(width: 14),
             Expanded(
-              child: Text(
-                term,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: AppColors.onSurface),
-              ),
+              child: Text(term,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: AppColors.onSurface)),
             ),
             if (onRemove != null)
               GestureDetector(

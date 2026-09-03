@@ -2,32 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/responsive.dart';
 import '../../core/utils/formatters.dart';
 import '../orders/order_tracking_screen.dart';
 import '../root_shell.dart';
 import 'widgets/confetti_overlay.dart';
 
 class OrderConfirmationScreen extends StatefulWidget {
-  const OrderConfirmationScreen({super.key});
+  final String orderId;
+
+  const OrderConfirmationScreen({super.key, required this.orderId});
 
   @override
-  State<OrderConfirmationScreen> createState() => _OrderConfirmationScreenState();
+  State<OrderConfirmationScreen> createState() =>
+      _OrderConfirmationScreenState();
 }
 
-class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with SingleTickerProviderStateMixin {
+class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _checkController;
   late final Animation<double> _checkScale;
 
-  // Placeholder order details — TODO: replace with the real OrderModel
-  // returned from OrderProvider.placeOrder() once the backend is wired.
-  final String _orderNumber = '#LH-${(DateTime.now().millisecondsSinceEpoch % 100000000)}';
-  late final DateTime _estimatedDelivery = DateTime.now().add(const Duration(days: 7));
+  late final DateTime _estimatedDelivery =
+      DateTime.now().add(const Duration(days: 7));
+
+  String get _orderNumber => '#LH-${widget.orderId.substring(0, 8).toUpperCase()}';
 
   @override
   void initState() {
     super.initState();
-    _checkController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _checkScale = CurvedAnimation(parent: _checkController, curve: Curves.elasticOut);
+    _checkController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
+    _checkScale =
+        CurvedAnimation(parent: _checkController, curve: Curves.elasticOut);
     _checkController.forward();
   }
 
@@ -57,17 +64,19 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                 Container(
                   height: 64,
                   color: AppColors.secondary,
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.marginMobile),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.marginMobile),
                   child: Row(
                     children: [
                       const Icon(Icons.menu, color: AppColors.primaryFixedDim),
                       const SizedBox(width: 16),
                       Text(
                         'LaptopHarbor',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: AppColors.primaryFixedDim,
-                              fontSize: 20,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  color: AppColors.primaryFixedDim,
+                                  fontSize: 20,
+                                ),
                       ),
                       const Spacer(),
                       const Icon(Icons.search, color: AppColors.primaryFixedDim),
@@ -76,7 +85,11 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(AppSpacing.marginMobile),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: responsiveHPadding(
+                          MediaQuery.sizeOf(context).width),
+                      vertical: 24,
+                    ),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 640),
@@ -86,7 +99,10 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                             color: AppColors.surfaceContainerLowest,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 24, offset: const Offset(0, 8)),
+                              BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.08),
+                                  blurRadius: 24,
+                                  offset: const Offset(0, 8)),
                             ],
                           ),
                           child: Column(
@@ -96,12 +112,19 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                                 child: Container(
                                   width: 96,
                                   height: 96,
-                                  decoration: const BoxDecoration(color: AppColors.primaryContainer, shape: BoxShape.circle),
-                                  child: const Icon(Icons.check_circle, size: 56, color: AppColors.onPrimaryContainer),
+                                  decoration: const BoxDecoration(
+                                      color: AppColors.primaryContainer,
+                                      shape: BoxShape.circle),
+                                  child: const Icon(Icons.check_circle,
+                                      size: 56,
+                                      color: AppColors.onPrimaryContainer),
                                 ),
                               ),
                               const SizedBox(height: AppSpacing.stackLg),
-                              Text('Order Confirmed!', style: Theme.of(context).textTheme.headlineLarge, textAlign: TextAlign.center),
+                              Text('Order Confirmed!',
+                                  style:
+                                      Theme.of(context).textTheme.headlineLarge,
+                                  textAlign: TextAlign.center),
                               const SizedBox(height: 10),
                               Text(
                                 "Thank you for your purchase. We've received your order and our technical team is preparing your high-performance hardware for dispatch.",
@@ -123,13 +146,15 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                                     context,
                                     icon: Icons.local_shipping_outlined,
                                     label: 'ESTIMATED DELIVERY',
-                                    value: Formatters.date(_estimatedDelivery),
+                                    value:
+                                        Formatters.date(_estimatedDelivery),
                                   );
                                   if (!isWide) {
                                     return Column(
                                       children: [
                                         orderNumberCard,
-                                        const SizedBox(height: AppSpacing.stackMd),
+                                        const SizedBox(
+                                            height: AppSpacing.stackMd),
                                         deliveryCard,
                                       ],
                                     );
@@ -137,7 +162,8 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                                   return Row(
                                     children: [
                                       Expanded(child: orderNumberCard),
-                                      const SizedBox(width: AppSpacing.gutter),
+                                      const SizedBox(
+                                          width: AppSpacing.gutter),
                                       Expanded(child: deliveryCard),
                                     ],
                                   );
@@ -147,7 +173,8 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
 
                               // Summary preview
                               Container(
-                                padding: const EdgeInsets.all(AppSpacing.stackMd),
+                                padding:
+                                    const EdgeInsets.all(AppSpacing.stackMd),
                                 decoration: BoxDecoration(
                                   color: AppColors.surfaceContainerLow,
                                   borderRadius: BorderRadius.circular(14),
@@ -170,12 +197,32 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                                     const SizedBox(width: 14),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text('ProStream X-15 Workstation', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.onSurface, fontWeight: FontWeight.w600)),
-                                          Text('Intel i9-13900H • 64GB RAM • 2TB SSD', style: Theme.of(context).textTheme.bodySmall),
+                                          Text('Your order is on its way!',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                      color:
+                                                          AppColors.onSurface,
+                                                      fontWeight:
+                                                          FontWeight.w600)),
+                                          Text(
+                                              'Order ref: $_orderNumber',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall),
                                           const SizedBox(height: 2),
-                                          Text(Formatters.price(2499), style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.primary)),
+                                          Text(
+                                              'Est. delivery: ${Formatters.date(_estimatedDelivery)}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelLarge
+                                                  ?.copyWith(
+                                                      color:
+                                                          AppColors.primary)),
                                         ],
                                       ),
                                     ),
@@ -189,29 +236,43 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                                 builder: (context, constraints) {
                                   final isWide = constraints.maxWidth >= 480;
                                   final trackBtn = ElevatedButton.icon(
-                                    onPressed: () => Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (_) => const OrderTrackingScreen()),
+                                    onPressed: () =>
+                                        Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              const OrderTrackingScreen()),
                                     ),
-                                    icon: const Icon(Icons.map_outlined, size: 18),
+                                    icon: const Icon(Icons.map_outlined,
+                                        size: 18),
                                     label: const Text('Track Order'),
-                                    style: ElevatedButton.styleFrom(minimumSize: const Size(0, 52)),
+                                    style: ElevatedButton.styleFrom(
+                                        minimumSize: const Size(0, 52)),
                                   );
                                   final continueBtn = OutlinedButton.icon(
                                     onPressed: _continueShopping,
-                                    icon: const Icon(Icons.shopping_cart_checkout, size: 18),
+                                    icon: const Icon(
+                                        Icons.shopping_cart_checkout,
+                                        size: 18),
                                     label: const Text('Continue Shopping'),
                                     style: OutlinedButton.styleFrom(
                                       minimumSize: const Size(0, 52),
-                                      side: const BorderSide(color: AppColors.secondary, width: 2),
+                                      side: const BorderSide(
+                                          color: AppColors.secondary,
+                                          width: 2),
                                       foregroundColor: AppColors.secondary,
                                     ),
                                   );
                                   if (!isWide) {
                                     return Column(
                                       children: [
-                                        SizedBox(width: double.infinity, child: trackBtn),
-                                        const SizedBox(height: AppSpacing.stackMd),
-                                        SizedBox(width: double.infinity, child: continueBtn),
+                                        SizedBox(
+                                            width: double.infinity,
+                                            child: trackBtn),
+                                        const SizedBox(
+                                            height: AppSpacing.stackMd),
+                                        SizedBox(
+                                            width: double.infinity,
+                                            child: continueBtn),
                                       ],
                                     );
                                   }
@@ -219,7 +280,8 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       trackBtn,
-                                      const SizedBox(width: AppSpacing.stackMd),
+                                      const SizedBox(
+                                          width: AppSpacing.stackMd),
                                       continueBtn,
                                     ],
                                   );
@@ -227,9 +289,12 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                               ),
                               const SizedBox(height: AppSpacing.stackLg),
                               Text(
-                                'A confirmation email has been sent to your registered email address.',
+                                'A confirmation has been saved to your account.',
                                 textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
                                       color: AppColors.outline,
                                       fontStyle: FontStyle.italic,
                                     ),
@@ -249,13 +314,17 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
     );
   }
 
-  Widget _detailCard(BuildContext context, {required IconData icon, required String label, required String value}) {
+  Widget _detailCard(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required String value}) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.stackMd),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: AppColors.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,11 +333,19 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
             children: [
               Icon(icon, size: 16, color: AppColors.primary),
               const SizedBox(width: 6),
-              Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 1)),
+              Text(label,
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelSmall
+                      ?.copyWith(letterSpacing: 1)),
             ],
           ),
           const SizedBox(height: 6),
-          Text(value, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary)),
+          Text(value,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(color: AppColors.primary)),
         ],
       ),
     );
