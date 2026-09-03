@@ -18,28 +18,50 @@ class ColorSwatchSelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('CHOOSE FINISH', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurface)),
-        const SizedBox(height: 12),
+        const Text(
+          'FINISH',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 10),
         Row(
           children: List.generate(colors.length, (index) {
-            final isSelected = index == selectedIndex;
+            final selected = index == selectedIndex;
             return Padding(
-              padding: const EdgeInsets.only(right: 14),
+              padding: const EdgeInsets.only(right: 12),
               child: GestureDetector(
                 onTap: () => onSelected(index),
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
                   width: 40,
                   height: 40,
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isSelected ? AppColors.primary : AppColors.outlineVariant,
-                      width: isSelected ? 2 : 1,
+                      color: selected
+                          ? AppColors.primary
+                          : AppColors.outlineVariant,
+                      width: selected ? 2.5 : 1.5,
                     ),
+                    boxShadow: selected
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primary
+                                  .withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              spreadRadius: 1,
+                            )
+                          ]
+                        : null,
                   ),
                   child: Container(
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: colors[index]),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle, color: colors[index]),
                   ),
                 ),
               ),

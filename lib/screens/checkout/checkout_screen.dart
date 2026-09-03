@@ -118,7 +118,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                backgroundColor: AppColors.secondary,
+                backgroundColor: AppColors.navBackground,
                 elevation: 0,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back,

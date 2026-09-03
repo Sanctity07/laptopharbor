@@ -40,7 +40,7 @@ class OrderHistoryScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.navBackground,
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back,
@@ -280,8 +280,8 @@ class OrderHistoryScreen extends StatelessWidget {
                         builder: (_) => const OrderTrackingScreen()),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.secondary,
-                    side: const BorderSide(color: AppColors.secondary),
+                    foregroundColor: AppColors.navForeground,
+                    side: const BorderSide(color: AppColors.navForeground),
                     minimumSize: const Size(0, 44),
                   ),
                   child: const Text('Track Shipment'),

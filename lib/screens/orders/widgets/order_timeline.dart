@@ -17,7 +17,6 @@ class TimelineStep {
   });
 }
 
-/// Vertical connected-dot timeline matching the Stitch order tracking design.
 class OrderTimeline extends StatelessWidget {
   final List<TimelineStep> steps;
 
@@ -34,39 +33,132 @@ class OrderTimeline extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                children: [
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: step.isCurrent
-                          ? AppColors.primary
-                          : step.isComplete
-                              ? AppColors.primary.withOpacity(0.4)
-                              : AppColors.surfaceVariant,
-                      border: step.isCurrent ? Border.all(color: AppColors.primaryContainer, width: 4) : null,
+              // ── Dot + line ─────────────────────────────────────────────
+              SizedBox(
+                width: 28,
+                child: Column(
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: step.isCurrent
+                            ? AppColors.primaryGradient
+                            : null,
+                        color: step.isComplete
+                            ? AppColors.success
+                            : step.isCurrent
+                                ? null
+                                : AppColors.surfaceContainerHigh,
+                        border: step.isCurrent
+                            ? null
+                            : Border.all(
+                                color: step.isComplete
+                                    ? AppColors.success
+                                    : AppColors.outlineVariant,
+                                width: 2,
+                              ),
+                        boxShadow: step.isCurrent
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.primary
+                                      .withValues(alpha: 0.35),
+                                  blurRadius: 8,
+                                  spreadRadius: 2,
+                                )
+                              ]
+                            : null,
+                      ),
+                      child: step.isComplete
+                          ? const Icon(Icons.check,
+                              size: 11, color: Colors.white)
+                          : step.isCurrent
+                              ? const Icon(Icons.local_shipping_outlined,
+                                  size: 11, color: Colors.white)
+                              : null,
                     ),
-                  ),
-                  if (!isLast) Expanded(child: Container(width: 2, color: AppColors.surfaceVariant)),
-                ],
+                    if (!isLast)
+                      Expanded(
+                        child: Container(
+                          width: 2,
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: step.isComplete
+                                  ? [AppColors.success, AppColors.success]
+                                  : [
+                                      AppColors.outlineVariant,
+                                      AppColors.outlineVariant,
+                                    ],
+                            ),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
+
+              // ── Content ────────────────────────────────────────────────
               Expanded(
                 child: Opacity(
-                  opacity: step.isComplete || step.isCurrent ? 1 : 0.6,
+                  opacity: step.isComplete || step.isCurrent ? 1.0 : 0.45,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(step.title, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.onSurface)),
-                        const SizedBox(height: 2),
-                        Text(step.subtitle, style: Theme.of(context).textTheme.bodySmall),
-                        const SizedBox(height: 2),
-                        Text(step.timestamp, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.outline)),
-                      ],
+                    padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: step.isCurrent
+                            ? AppColors.primaryContainer
+                            : AppColors.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: step.isCurrent
+                              ? AppColors.primary.withValues(alpha: 0.3)
+                              : AppColors.outlineVariant,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            step.title,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: step.isCurrent
+                                  ? AppColors.onPrimaryContainer
+                                  : AppColors.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            step.subtitle,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: step.isCurrent
+                                  ? AppColors.onPrimaryContainer
+                                      .withValues(alpha: 0.75)
+                                  : AppColors.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            step.timestamp,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: step.isCurrent
+                                  ? AppColors.primary
+                                  : AppColors.outline,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

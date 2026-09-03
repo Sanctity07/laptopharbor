@@ -73,7 +73,7 @@ class _RootShellState extends State<RootShell> {
             body: Row(
               children: [
                 NavigationRail(
-                  backgroundColor: AppColors.secondary,
+                  backgroundColor: AppColors.navBackground,
                   selectedIndex: _index,
                   onDestinationSelected: (i) => setState(() => _index = i),
                   labelType: NavigationRailLabelType.all,

@@ -119,7 +119,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         onPressed: _launch,
                         child: Text(
                           'Skip',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.secondary),
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.navForeground),
                         ),
                       ),
                     ],

@@ -63,7 +63,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
               children: [
                 Container(
                   height: 64,
-                  color: AppColors.secondary,
+                  color: AppColors.navForeground,
                   padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.marginMobile),
                   child: Row(
@@ -257,9 +257,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                                     style: OutlinedButton.styleFrom(
                                       minimumSize: const Size(0, 52),
                                       side: const BorderSide(
-                                          color: AppColors.secondary,
+                                          color: AppColors.navForeground,
                                           width: 2),
-                                      foregroundColor: AppColors.secondary,
+                                      foregroundColor: AppColors.navForeground,
                                     ),
                                   );
                                   if (!isWide) {

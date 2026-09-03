@@ -66,7 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             // ── Top bar ────────────────────────────────────────────────────
             Container(
-              color: AppColors.secondary,
+              color: AppColors.navForeground,
               padding: EdgeInsets.fromLTRB(8, 8, hPad, 12),
               child: Center(
                 child: ConstrainedBox(

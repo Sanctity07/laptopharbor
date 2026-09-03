@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 
-/// Icon-left text field matching the Stitch login card style.
 class AuthTextField extends StatelessWidget {
   final String label;
   final String hint;
@@ -36,10 +35,11 @@ class AuthTextField extends StatelessWidget {
           children: [
             Text(
               label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.onSurfaceVariant,
-                  ),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.onSurface,
+              ),
             ),
             if (labelTrailing != null) labelTrailing!,
           ],
@@ -50,10 +50,15 @@ class AuthTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           validator: validator,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.onSurface),
+          style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.onSurface,
+              fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: Icon(icon, color: AppColors.outline, size: 20),
+            hintStyle: const TextStyle(
+                color: AppColors.outline, fontSize: 14),
+            prefixIcon: Icon(icon, color: AppColors.outline, size: 19),
             suffixIcon: trailing,
           ),
         ),

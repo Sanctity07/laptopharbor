@@ -30,7 +30,7 @@ class WishlistScreen extends StatelessWidget {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                backgroundColor: AppColors.secondary,
+                backgroundColor: AppColors.navBackground,
                 elevation: 0,
                 leading: Builder(
                   builder: (ctx) => IconButton(

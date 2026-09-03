@@ -18,11 +18,9 @@ Future<void> main() async {
   runApp(const _InitApp());
 }
 
-/// Shown while Firebase.initializeApp() completes.
-/// Once done it swaps itself out for the real app tree.
+/// Bootstraps Firebase before mounting the real app tree.
 class _InitApp extends StatefulWidget {
   const _InitApp();
-
   @override
   State<_InitApp> createState() => _InitAppState();
 }
@@ -42,8 +40,6 @@ class _InitAppState extends State<_InitApp> {
     return FutureBuilder<FirebaseApp>(
       future: _init,
       builder: (context, snapshot) {
-        // Still initializing — show the branded splash immediately
-        // so the user never sees the plain Flutter loading screen.
         if (snapshot.connectionState != ConnectionState.done) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -51,8 +47,6 @@ class _InitAppState extends State<_InitApp> {
             home: const _FirebaseLoadingScreen(),
           );
         }
-
-        // Firebase init failed — show error
         if (snapshot.hasError) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -60,8 +54,6 @@ class _InitAppState extends State<_InitApp> {
             home: _FirebaseErrorScreen(error: snapshot.error.toString()),
           );
         }
-
-        // Firebase ready — boot the full app
         return const LaptopHarborApp();
       },
     );
@@ -91,68 +83,64 @@ class LaptopHarborApp extends StatelessWidget {
   }
 }
 
-// ── Loading screen shown while Firebase boots ────────────────────────────────
+// ── Branded loading screen (dark navy) ────────────────────────────────────────
 class _FirebaseLoadingScreen extends StatelessWidget {
   const _FirebaseLoadingScreen();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.navBackground,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 160,
-                  height: 160,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.primary.withValues(alpha: 0.10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        blurRadius: 60,
-                        spreadRadius: 10,
-                      ),
-                    ],
+            // Icon with gradient container + glow
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                gradient: AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.45),
+                    blurRadius: 48,
+                    spreadRadius: 4,
                   ),
-                ),
-                const Icon(Icons.laptop_mac_rounded,
-                    size: 96, color: AppColors.primary),
-              ],
+                ],
+              ),
+              child: const Icon(Icons.laptop_mac_rounded,
+                  size: 52, color: Colors.white),
             ),
             const SizedBox(height: 32),
-            Text(
+            const Text(
               'LaptopHarbor',
               style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-                letterSpacing: -0.5,
+                fontSize: 30,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: -0.8,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'PRECISION ENGINEERED',
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: AppColors.secondary,
-                letterSpacing: 3,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryFixedDim.withValues(alpha: 0.6),
+                letterSpacing: 3.5,
               ),
             ),
-            const SizedBox(height: 48),
-            const SizedBox(
+            const SizedBox(height: 52),
+            SizedBox(
               width: 24,
               height: 24,
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(AppColors.primary),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.primaryFixedDim.withValues(alpha: 0.8)),
               ),
             ),
           ],
@@ -162,7 +150,7 @@ class _FirebaseLoadingScreen extends StatelessWidget {
   }
 }
 
-// ── Error screen shown if Firebase fails to init ─────────────────────────────
+// ── Error screen ───────────────────────────────────────────────────────────────
 class _FirebaseErrorScreen extends StatelessWidget {
   final String error;
   const _FirebaseErrorScreen({required this.error});
@@ -170,36 +158,50 @@ class _FirebaseErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.navBackground,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.cloud_off_outlined,
-                  size: 64, color: AppColors.error),
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(Icons.cloud_off_outlined,
+                    size: 38, color: AppColors.error),
+              ),
               const SizedBox(height: 24),
               const Text(
-                'Could not connect to services',
+                'Could not connect',
                 style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.onSurface),
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Text(
                 'Check your internet connection and restart the app.',
                 style: TextStyle(
-                    fontSize: 14, color: AppColors.onSurfaceVariant),
+                  fontSize: 14,
+                  color: Colors.white.withValues(alpha: 0.6),
+                  height: 1.5,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 error,
-                style:
-                    const TextStyle(fontSize: 11, color: AppColors.outline),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white.withValues(alpha: 0.3),
+                ),
                 textAlign: TextAlign.center,
               ),
             ],

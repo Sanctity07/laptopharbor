@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
 
 class DealBanner extends StatelessWidget {
   final String imageUrl;
@@ -22,93 +21,97 @@ class DealBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(24),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // Keep a 16:9 feel but enforce a minimum height so content never clips.
-          final bannerHeight = (constraints.maxWidth * 9 / 16).clamp(180.0, 340.0);
-          final isNarrow = constraints.maxWidth < 360;
-
+          final h = (constraints.maxWidth * 9 / 16).clamp(200.0, 380.0);
           return SizedBox(
-            height: bannerHeight,
+            height: h,
             child: Stack(
               fit: StackFit.expand,
               children: [
+                // Image
                 CachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
+
+                // Multi-stop gradient: strong dark on left, transparent on right
                 DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
+                      stops: const [0.0, 0.55, 1.0],
                       colors: [
-                        AppColors.onSurface.withValues(alpha: 0.70),
+                        const Color(0xFF0F172A).withValues(alpha: 0.92),
+                        const Color(0xFF0F172A).withValues(alpha: 0.55),
                         Colors.transparent,
                       ],
                     ),
                   ),
                 ),
+
+                // Content
                 Padding(
-                  padding: EdgeInsets.all(isNarrow ? 12.0 : AppSpacing.stackMd),
+                  padding: const EdgeInsets.all(28),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Tag badge
+                      // Tag pill with gradient
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryContainer,
-                          borderRadius: BorderRadius.circular(4),
+                          gradient: AppColors.primaryGradient,
+                          borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
                           tag,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: AppColors.onPrimaryContainer,
-                              ),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      // Title — scales down on narrow screens
+                      const SizedBox(height: 10),
+
+                      // Title
                       ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 260),
+                        constraints: const BoxConstraints(maxWidth: 280),
                         child: Text(
                           title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: (isNarrow
-                                  ? Theme.of(context).textTheme.headlineSmall
-                                  : Theme.of(context).textTheme.headlineLarge)
-                              ?.copyWith(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      // Description — hidden on very narrow banners to save space
-                      if (!isNarrow)
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 240),
-                          child: Text(
-                            description,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: Colors.white70),
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
+                            height: 1.2,
                           ),
                         ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: onShopNow,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(0, 38),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
-                          child: Text('Shop Now'),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // Description
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 260),
+                        child: Text(
+                          description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white.withValues(alpha: 0.75),
+                            height: 1.5,
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 18),
+
+                      // CTA
+                      _ShopNowButton(onTap: onShopNow),
                     ],
                   ),
                 ),
@@ -116,6 +119,57 @@ class DealBanner extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _ShopNowButton extends StatefulWidget {
+  final VoidCallback onTap;
+  const _ShopNowButton({required this.onTap});
+
+  @override
+  State<_ShopNowButton> createState() => _ShopNowButtonState();
+}
+
+class _ShopNowButtonState extends State<_ShopNowButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+          decoration: BoxDecoration(
+            color: _hovered ? Colors.white : Colors.white.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+                color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Shop Now',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: _hovered ? AppColors.onSurface : Colors.white,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Icon(Icons.arrow_forward,
+                  size: 14,
+                  color: _hovered ? AppColors.onSurface : Colors.white),
+            ],
+          ),
+        ),
       ),
     );
   }

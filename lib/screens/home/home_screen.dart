@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.navBackground,
             elevation: 0,
             automaticallyImplyLeading: false,
             leading: screenWidth < Breakpoints.medium

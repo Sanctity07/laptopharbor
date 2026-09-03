@@ -20,19 +20,33 @@ class BentoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(24),
       child: SizedBox(
-        height: 220,
+        height: 240,
         child: Stack(
           fit: StackFit.expand,
           children: [
             CachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
-            DecoratedBox(decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.25))),
+            // Gradient overlay — stronger at bottom
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: const [0.0, 0.4, 1.0],
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.2),
+                    Colors.black.withValues(alpha: 0.7),
+                  ],
+                ),
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(22),
               child: Align(
                 alignment: contentAlignment == Alignment.centerLeft
-                    ? Alignment.centerLeft
+                    ? Alignment.bottomLeft
                     : Alignment.bottomLeft,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,18 +54,28 @@ class BentoCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: -0.3,
+                        height: 1.2,
+                      ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 220),
                       child: Text(
                         description,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.8),
+                          height: 1.4,
+                        ),
                       ),
                     ),
                     if (action != null) ...[
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       action!,
                     ],
                   ],

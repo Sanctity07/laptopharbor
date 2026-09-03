@@ -21,41 +21,79 @@ class PaymentOptionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
+          color: selected
+              ? AppColors.primaryContainer
+              : AppColors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(14),
-          color: selected ? AppColors.primaryContainer.withOpacity(0.05) : Colors.transparent,
-          border: Border.all(color: selected ? AppColors.primary : AppColors.outlineVariant, width: selected ? 2 : 1),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.outlineVariant,
+            width: selected ? 2 : 1,
+          ),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 28, color: selected ? AppColors.primary : AppColors.secondary),
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppColors.primary.withValues(alpha: 0.12)
+                    : AppColors.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                size: 24,
+                color: selected ? AppColors.primary : AppColors.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.onSurface, fontWeight: FontWeight.w600)),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: selected
+                          ? AppColors.onPrimaryContainer
+                          : AppColors.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: selected
+                          ? AppColors.onPrimaryContainer.withValues(alpha: 0.7)
+                          : AppColors.onSurfaceVariant,
+                    ),
+                  ),
                 ],
               ),
             ),
-            Container(
+            // Radio indicator
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
               width: 22,
               height: 22,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: selected ? AppColors.primary : AppColors.outlineVariant, width: 2),
+                border: Border.all(
+                  color: selected ? AppColors.primary : AppColors.outline,
+                  width: 2,
+                ),
+                color: selected ? AppColors.primary : Colors.transparent,
               ),
               child: selected
-                  ? Center(
-                      child: Container(
-                        width: 11,
-                        height: 11,
-                        decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.primary),
-                      ),
-                    )
+                  ? const Icon(Icons.check, size: 13, color: Colors.white)
                   : null,
             ),
           ],

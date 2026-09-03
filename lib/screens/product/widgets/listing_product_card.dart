@@ -4,9 +4,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../models/product.dart';
 
-/// Product card for the listing grid/list — badges, spec rows
-/// (zebra-striped like the Stitch design), price + strikethrough,
-/// and a "View Details" CTA. `isGridMode` toggles column vs row layout.
 class ListingProductCard extends StatelessWidget {
   final Product product;
   final bool isGridMode;
@@ -25,48 +22,115 @@ class ListingProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final image = Stack(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.outlineVariant, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: isGridMode ? _gridLayout(context) : _listLayout(context),
+      ),
+    );
+  }
+
+  Widget _gridLayout(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _imageBlock(aspectRatio: 1.2),
+        _infoBlock(context),
+      ],
+    );
+  }
+
+  Widget _listLayout(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(width: 140, child: _imageBlock(aspectRatio: 0.9)),
+          Expanded(child: _infoBlock(context)),
+        ],
+      ),
+    );
+  }
+
+  Widget _imageBlock({required double aspectRatio}) {
+    return Stack(
       children: [
         AspectRatio(
-          aspectRatio: 4 / 3,
+          aspectRatio: aspectRatio,
           child: Container(
-            color: AppColors.surfaceContainerLow,
+            color: AppColors.surfaceContainer,
             child: product.images.isNotEmpty
-                ? CachedNetworkImage(imageUrl: product.images.first, fit: BoxFit.cover)
-                : const Icon(Icons.laptop_mac, color: AppColors.outline),
+                ? CachedNetworkImage(
+                    imageUrl: product.images.first, fit: BoxFit.cover)
+                : const Center(
+                    child:
+                        Icon(Icons.laptop_mac, size: 40, color: AppColors.outline)),
           ),
         ),
+        // Badges
         Positioned(
           top: 10,
           left: 10,
           child: Row(
             children: [
-              if (product.isNew) _badge(context, 'NEW', AppColors.secondary),
+              if (product.isNew) _badge('NEW', AppColors.primaryGradient),
               if (product.isNew && product.onSale) const SizedBox(width: 6),
-              if (product.onSale) _badge(context, 'SALE', AppColors.primary),
+              if (product.onSale)
+                _badge(
+                    'SALE',
+                    const LinearGradient(
+                        colors: [Color(0xFFEF4444), Color(0xFFDC2626)])),
             ],
           ),
         ),
+        // Wishlist
         Positioned(
           top: 8,
           right: 8,
           child: GestureDetector(
             onTap: onWishlistToggle,
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.8), shape: BoxShape.circle),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: isWishlisted
+                    ? AppColors.error.withValues(alpha: 0.12)
+                    : Colors.white.withValues(alpha: 0.9),
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: isWishlisted
+                        ? AppColors.error.withValues(alpha: 0.3)
+                        : AppColors.outlineVariant),
+              ),
               child: Icon(
                 isWishlisted ? Icons.favorite : Icons.favorite_border,
-                size: 18,
-                color: isWishlisted ? AppColors.error : AppColors.secondary,
+                size: 17,
+                color: isWishlisted ? AppColors.error : AppColors.onSurfaceVariant,
               ),
             ),
           ),
         ),
       ],
     );
+  }
 
-    final details = Padding(
+  Widget _infoBlock(BuildContext context) {
+    return Padding(
       padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,13 +146,21 @@ class ListingProductCard extends StatelessWidget {
                   children: [
                     Text(
                       product.brand.toUpperCase(),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.secondary),
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1,
+                          color: AppColors.primary),
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       product.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.headlineSmall,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.onSurface),
                     ),
                   ],
                 ),
@@ -98,107 +170,104 @@ class ListingProductCard extends StatelessWidget {
                 children: [
                   Text(
                     Formatters.price(product.price),
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.primary),
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurface),
                   ),
                   if (product.onSale)
                     Text(
                       Formatters.price(product.originalPrice!),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                            decoration: TextDecoration.lineThrough,
-                          ),
+                      style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurfaceVariant,
+                          decoration: TextDecoration.lineThrough),
                     ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 10),
+          // Specs — subtle zebra rows
           Container(
-            decoration: const BoxDecoration(
-              border: Border.symmetric(horizontal: BorderSide(color: AppColors.outlineVariant)),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(10),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Column(
-              children: product.specs.entries
-                  .map((e) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(e.key, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.secondary)),
-                            Text(
-                              '${e.value}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.onSurface,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ))
-                  .toList(),
+              children: product.specs.entries.take(4).toList().asMap().entries
+                  .map((e) {
+                final isEven = e.key % 2 == 0;
+                final spec = e.value;
+                return Container(
+                  color: isEven
+                      ? Colors.transparent
+                      : AppColors.outlineVariant.withValues(alpha: 0.25),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(spec.key,
+                          style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.onSurfaceVariant,
+                              fontWeight: FontWeight.w500)),
+                      Text('${spec.value}',
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.onSurface)),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
           ),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child: ElevatedButton(
               onPressed: onTap,
-              icon: const Text('View Details'),
-              label: const Icon(Icons.arrow_forward, size: 16),
-              iconAlignment: IconAlignment.end,
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 42),
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('View Details',
+                      style: TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600)),
+                  SizedBox(width: 6),
+                  Icon(Icons.arrow_forward, size: 14),
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
-
-    final card = Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 3)),
-        ],
-      ),
-      child: isGridMode
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [image, details],
-              ),
-            )
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(width: 140, child: image),
-                    Expanded(child: details),
-                  ],
-                ),
-              ),
-            ),
-    );
-
-    return GestureDetector(onTap: onTap, child: card);
   }
 
-  Widget _badge(BuildContext context, String label, Color color) {
+  Widget _badge(String label, Gradient gradient) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Colors.white,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
+        style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5),
       ),
     );
   }

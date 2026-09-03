@@ -10,15 +10,15 @@ class ReviewCard extends StatelessWidget {
   String get _initials {
     final parts = review.userName.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return (parts.first[0] + parts.last[0]).toUpperCase();
   }
 
   String get _relativeTime {
     final diff = DateTime.now().difference(review.createdAt);
-    if (diff.inDays >= 14) return '${(diff.inDays / 7).floor()} weeks ago';
-    if (diff.inDays >= 7) return '1 week ago';
-    if (diff.inDays >= 1) return '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
+    if (diff.inDays >= 14) return '${(diff.inDays / 7).floor()}w ago';
+    if (diff.inDays >= 7) return '1w ago';
+    if (diff.inDays >= 1) return '${diff.inDays}d ago';
     return 'Today';
   }
 
@@ -27,47 +27,91 @@ class ReviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
+        border: Border.all(color: AppColors.outlineVariant, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: AppColors.primaryContainer,
-                    child: Text(
-                      _initials,
-                      style: const TextStyle(color: AppColors.onPrimaryContainer, fontSize: 12, fontWeight: FontWeight.bold),
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradient,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        _initials,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(review.userName, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.onSurface)),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        review.userName,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.onSurface,
+                        ),
+                      ),
+                      Text(
+                        _relativeTime,
+                        style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
                 ],
               ),
-              Text(_relativeTime, style: Theme.of(context).textTheme.labelSmall),
+              // Stars
+              Row(
+                children: List.generate(5, (i) {
+                  final filled = i < review.rating.round();
+                  return Icon(
+                    filled ? Icons.star_rounded : Icons.star_outline_rounded,
+                    size: 15,
+                    color: filled
+                        ? const Color(0xFFF59E0B)
+                        : AppColors.outlineVariant,
+                  );
+                }),
+              ),
             ],
           ),
-          const SizedBox(height: 10),
-          Row(
-            children: List.generate(5, (i) {
-              final filled = i < review.rating.round();
-              return Icon(filled ? Icons.star : Icons.star_border, size: 16, color: AppColors.tertiary);
-            }),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '"${review.comment}"',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
-                ),
+          const SizedBox(height: 12),
+
+          // Comment
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              review.comment,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.onSurfaceVariant,
+                height: 1.5,
+              ),
+            ),
           ),
         ],
       ),

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
 
-/// Numbered section card ("1. Shipping Address", "2. Payment Method")
-/// matching the Stitch checkout layout.
 class CheckoutSection extends StatelessWidget {
   final int number;
   final String title;
@@ -19,13 +16,16 @@ class CheckoutSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.stackMd),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.outlineVariant, width: 1),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8),
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 12,
+              offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -37,17 +37,31 @@ class CheckoutSection extends StatelessWidget {
                 width: 32,
                 height: 32,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(color: AppColors.primaryContainer, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: Text(
                   '$number',
-                  style: const TextStyle(color: AppColors.onPrimaryContainer, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
-              Text(title, style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.onSurface,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: AppSpacing.stackLg),
+          const SizedBox(height: 20),
           child,
         ],
       ),

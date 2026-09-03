@@ -41,7 +41,7 @@ class ProfileScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.navBackground,
             elevation: 0,
             automaticallyImplyLeading: false,
             title: Text(

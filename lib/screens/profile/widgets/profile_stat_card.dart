@@ -10,18 +10,43 @@ class ProfileStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        border: Border.all(color: AppColors.outlineVariant, width: 1),
+        boxShadow: [
+          BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 2)),
+        ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(value, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary)),
-          const SizedBox(height: 2),
-          Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.secondary)),
+          ShaderMask(
+            shaderCallback: (bounds) =>
+                AppColors.primaryGradient.createShader(bounds),
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
         ],
       ),
     );

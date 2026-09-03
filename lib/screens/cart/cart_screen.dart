@@ -82,7 +82,7 @@ class _CartScreenState extends State<CartScreen> {
               SliverAppBar(
                 pinned: true,
                 automaticallyImplyLeading: false,
-                backgroundColor: AppColors.secondary,
+                backgroundColor: AppColors.navBackground,
                 elevation: 0,
                 title: Text(
                   'LaptopHarbor',

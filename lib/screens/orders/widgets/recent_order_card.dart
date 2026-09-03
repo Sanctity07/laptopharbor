@@ -7,7 +7,7 @@ import '../../../widgets/order_status_badge.dart';
 class RecentOrderCard extends StatelessWidget {
   final String date;
   final String orderNumber;
-  final String status; // placed | processing | shipped | delivered
+  final String status;
   final String imageUrl;
   final String itemSummary;
   final double price;
@@ -24,14 +24,14 @@ class RecentOrderCard extends StatelessWidget {
     required this.onTap,
   });
 
-  Color get _accentColor {
+  Color get _statusColor {
     switch (status) {
       case 'delivered':
         return AppColors.success;
-      case 'processing':
-        return AppColors.tertiary;
       case 'shipped':
         return AppColors.primary;
+      case 'processing':
+        return AppColors.tertiary;
       default:
         return AppColors.secondary;
     }
@@ -41,59 +41,95 @@ class RecentOrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.surfaceContainerLowest,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border(left: BorderSide(color: _accentColor, width: 4)),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.outlineVariant, width: 1),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(date, style: Theme.of(context).textTheme.labelSmall),
-                      Text(orderNumber, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.onSurface)),
-                    ],
-                  ),
-                  OrderStatusBadge(status: status),
-                ],
+              // Status accent bar
+              Container(
+                width: 4,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: _statusColor,
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      color: AppColors.surfaceVariant,
-                      child: CachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(width: 12),
+
+              // Product thumbnail
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  color: AppColors.surfaceContainer,
+                  child: CachedNetworkImage(
+                      imageUrl: imageUrl, fit: BoxFit.cover),
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(itemSummary, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall),
-                        Text(Formatters.price(price), style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primary)),
+                        Text(
+                          orderNumber,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.onSurface,
+                          ),
+                        ),
+                        OrderStatusBadge(status: status),
                       ],
                     ),
-                  ),
-                  const Icon(Icons.chevron_right, color: AppColors.outline),
-                ],
+                    const SizedBox(height: 3),
+                    Text(
+                      itemSummary,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          date,
+                          style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.onSurfaceVariant),
+                        ),
+                        Text(
+                          Formatters.price(price),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right,
+                  size: 18, color: AppColors.outline),
             ],
           ),
         ),

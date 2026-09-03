@@ -60,7 +60,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.navBackground,
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: AppColors.primaryFixedDim),
@@ -133,7 +133,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                     label: const Text('Filters'),
                                     style: OutlinedButton.styleFrom(
                                       minimumSize: const Size(0, 44),
-                                      foregroundColor: AppColors.secondary,
+                                      foregroundColor: AppColors.navForeground,
                                       side: const BorderSide(
                                           color: AppColors.outlineVariant),
                                     ),
@@ -154,12 +154,12 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                         value: _sortBy,
                                         icon: const Icon(Icons.expand_more,
                                             size: 18,
-                                            color: AppColors.secondary),
+                                            color: AppColors.navForeground),
                                         style: Theme.of(context)
                                             .textTheme
                                             .labelSmall
                                             ?.copyWith(
-                                                color: AppColors.secondary),
+                                                color: AppColors.navForeground),
                                         items: const [
                                           DropdownMenuItem(
                                               value: 'Newest First',

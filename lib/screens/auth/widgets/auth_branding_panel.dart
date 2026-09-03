@@ -1,56 +1,79 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
 
-/// Desktop-only left panel (mirrors the `hidden lg:flex` section in the
-/// Stitch HTML). Only shown by the screens when width >= 1024.
 class AuthBrandingPanel extends StatelessWidget {
   const AuthBrandingPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: AppSpacing.stackLg),
+    return Container(
+      padding: const EdgeInsets.all(40),
+      decoration: BoxDecoration(
+        gradient: AppColors.heroGradient,
+        borderRadius: BorderRadius.circular(28),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Logo mark
           Row(
             children: [
-              const Icon(Icons.laptop_mac_rounded, color: AppColors.primary, size: 36),
-              const SizedBox(width: 8),
-              Text(
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.laptop_mac_rounded,
+                    color: AppColors.primaryFixedDim, size: 26),
+              ),
+              const SizedBox(width: 12),
+              const Text(
                 'LaptopHarbor',
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: AppColors.primary),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.3,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.stackMd),
-          RichText(
-            text: TextSpan(
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontSize: 40,
-                    height: 1.15,
-                    color: AppColors.onSurface,
-                  ),
-              children: const [
-                TextSpan(text: 'Engineered for '),
-                TextSpan(text: 'Performance.', style: TextStyle(color: AppColors.primary)),
-              ],
+          const SizedBox(height: 32),
+
+          // Headline
+          const Text(
+            'Your next-level\nworkstation\nawaits.',
+            style: TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              height: 1.15,
+              letterSpacing: -1,
             ),
           ),
-          const SizedBox(height: AppSpacing.stackSm),
+          const SizedBox(height: 16),
           Text(
-            'Join the premier community for tech professionals and hardware enthusiasts. '
-            'High-performance gear, verified specs, and expert support.',
-            style: Theme.of(context).textTheme.bodyLarge,
+            'High-performance gear, verified specs, and\nexpert support for tech professionals.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.7),
+              height: 1.6,
+            ),
           ),
-          const SizedBox(height: AppSpacing.stackLg),
-          Row(
-            children: [
-              Expanded(child: _FeatureCard(icon: Icons.verified_user, title: 'Secure Login', desc: '256-bit encryption for all your data.')),
-              const SizedBox(width: AppSpacing.stackMd),
-              Expanded(child: _FeatureCard(icon: Icons.bolt, title: 'Instant Sync', desc: 'Access your wishlist across all devices.')),
+          const SizedBox(height: 36),
+
+          // Feature badges
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: const [
+              _Badge(Icons.verified_user_outlined, 'Secure Auth'),
+              _Badge(Icons.sync_rounded, 'Real-time Sync'),
+              _Badge(Icons.local_shipping_outlined, 'Fast Delivery'),
+              _Badge(Icons.star_rounded, 'Top Rated'),
             ],
           ),
         ],
@@ -59,30 +82,33 @@ class AuthBrandingPanel extends StatelessWidget {
   }
 }
 
-class _FeatureCard extends StatelessWidget {
+class _Badge extends StatelessWidget {
   final IconData icon;
-  final String title;
-  final String desc;
-
-  const _FeatureCard({required this.icon, required this.title, required this.desc});
+  final String label;
+  const _Badge(this.icon, this.label);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.stackMd),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
+        color: Colors.white.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: AppColors.primary),
-          const SizedBox(height: 8),
-          Text(title, style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-          const SizedBox(height: 2),
-          Text(desc, style: Theme.of(context).textTheme.bodySmall),
+          Icon(icon, size: 14, color: AppColors.primaryFixedDim),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
         ],
       ),
     );

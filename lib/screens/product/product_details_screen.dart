@@ -59,7 +59,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                backgroundColor: AppColors.secondary,
+                backgroundColor: AppColors.navBackground,
                 elevation: 0,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: AppColors.primaryFixedDim),
@@ -179,7 +179,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               ElevatedButton(
                                 onPressed: () {},
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.secondary,
+                                  backgroundColor: AppColors.navBackground,
                                   minimumSize: const Size(0, 44),
                                 ),
                                 child: const Padding(
@@ -403,8 +403,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.1)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8)],
+        border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.1)),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,7 +416,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryContainer.withOpacity(0.2),
+                    color: AppColors.primaryContainer.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
